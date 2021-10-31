@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*
 import requests, time, hmac, hashlib
-from app.authorization import recv_window,api_secret,api_key
+from app.authorization import recv_window, api_secret, api_key
 
 try:
     from urllib import urlencode
 # python3
 except ImportError:
     from urllib.parse import urlencode
+
 
 class BinanceAPI(object):
     BASE_URL = "https://www.binance.com/api/v1"
@@ -21,26 +22,26 @@ class BinanceAPI(object):
         path = "%s/ping" % self.BASE_URL_V3
         return requests.get(path, timeout=180, verify=True).json()
 
-    def get_ticker_price(self,market):
+    def get_ticker_price(self, market):
         path = "%s/ticker/price" % self.BASE_URL_V3
-        params = {"symbol":market}
-        res =  self._get_no_sign(path,params)
+        params = {"symbol": market}
+        res = self._get_no_sign(path, params)
         time.sleep(2)
         return float(res['price'])
 
-    def get_ticker_24hour(self,market):
+    def get_ticker_24hour(self, market):
         path = "%s/ticker/24hr" % self.BASE_URL_V3
-        params = {"symbol":market}
-        res =  self._get_no_sign(path,params)
+        params = {"symbol": market}
+        res = self._get_no_sign(path, params)
         return res
 
     def get_klines(self, market, interval, startTime=None, endTime=None):
         path = "%s/klines" % self.BASE_URL_V3
         params = None
         if startTime is None:
-            params = {"symbol": market, "interval":interval}    
-        else:    
-            params = {"symbol": market, "interval":interval, "startTime":startTime, "endTime":endTime}
+            params = {"symbol": market, "interval": interval}
+        else:
+            params = {"symbol": market, "interval": interval, "startTime": startTime, "endTime": endTime}
         return self._get_no_sign(path, params)
 
     def buy_limit(self, market, quantity, rate):
@@ -99,14 +100,14 @@ class BinanceAPI(object):
         query = urlencode(self._sign(params))
         url = "%s" % (path)
         header = {"X-MBX-APIKEY": self.key}
-        return requests.post(url, headers=header, data=query, \
-            timeout=180, verify=True).json()
+        return requests.post(url, headers=header, data=query, timeout=180, verify=True).json()
 
     def _format(self, price):
         return "{:.8f}".format(price)
 
+
 if __name__ == "__main__":
-    instance = BinanceAPI(api_key,api_secret)
+    instance = BinanceAPI(api_key, api_secret)
     # print(instance.buy_limit("EOSUSDT",5,2))
     # print(instance.get_ticker_price("WINGUSDT"))
     print(instance.get_ticker_24hour("WINGUSDT"))
